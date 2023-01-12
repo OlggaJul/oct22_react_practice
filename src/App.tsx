@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import cn from 'classnames';
 import './App.scss';
 
@@ -30,10 +30,23 @@ export const App: React.FC = () => {
     return foundCategory || null;
   }
 
-  const allData = productsFromServer.map(product => ({
+  const allGoods = productsFromServer.map(product => ({
     ...product,
     category: getCategory(product.categoryId),
   }));
+
+  const [visibleUser, setVisibleUser] = useState(1); //
+  const [searchText, setSearchText] = useState('');
+
+  const VisibleGoods = allGoods.filter(
+    product => {
+      const productName = product.name.toLowerCase();
+
+      return (product.category?.owner?.id === visibleUser
+        && productName.includes(searchText.toLowerCase())
+      );
+    },
+  );
 
   return (
     <div className="section">
@@ -48,41 +61,35 @@ export const App: React.FC = () => {
               <a
                 data-cy="FilterAllUsers"
                 href="#/"
+                className="is-active"
+              // onClick={() => setVisibleUser()}
               >
                 All
               </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 1
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-                className="is-active"
-              >
-                User 2
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 3
-              </a>
+              {usersFromServer.map(user => (
+                <a
+                  data-cy="FilterUser"
+                  href="#/"
+                  className={cn(
+                    { 'is-active': visibleUser === user.id },
+                  )}
+                  onClick={() => setVisibleUser(user.id)}
+                // className="is-active"
+                >
+                  {user.name}
+                </a>
+              ))}
             </p>
 
             <div className="panel-block">
               <p className="control has-icons-left has-icons-right">
                 <input
+                  value={searchText}
+                  onChange={(event) => setSearchText(event.target.value)}
                   data-cy="SearchField"
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
                 />
 
                 <span className="icon is-left">
@@ -216,7 +223,7 @@ export const App: React.FC = () => {
             </thead>
 
             <tbody>
-              {allData.map(item => (
+              {VisibleGoods.map(item => (
                 <tr data-cy="Product">
                   <td className="has-text-weight-bold" data-cy="ProductId">
                     {item.id}
