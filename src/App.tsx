@@ -35,15 +35,28 @@ export const App: React.FC = () => {
     category: getCategory(product.categoryId),
   }));
 
-  const [visibleUser, setVisibleUser] = useState(1); //
+  const [visibleUser, setVisibleUser] = useState(0); //
   const [searchText, setSearchText] = useState('');
+
+  const handleUserSelector = (newUserId: number) => {
+    // visibleUser = (newUserId === 0)
+    //   ? usersFromServer
+    //   : usersFromServer.filter(user => user.id === newUserId);
+
+    setVisibleUser(newUserId);
+  };
 
   const VisibleGoods = allGoods.filter(
     product => {
       const productName = product.name.toLowerCase();
+      // const selectedUser = usersFromServer.filter(user => user.id === visibleUser)
+      const selectedUser = (visibleUser !== 0)
+        ? usersFromServer.filter(user => user.id === visibleUser)
+        : usersFromServer;
 
-      return (product.category?.owner?.id === visibleUser
-        && productName.includes(searchText.toLowerCase())
+      return (
+        productName.includes(searchText.toLowerCase())
+        && selectedUser.includes(product.category?.owner)
       );
     },
   );
@@ -62,7 +75,7 @@ export const App: React.FC = () => {
                 data-cy="FilterAllUsers"
                 href="#/"
                 className="is-active"
-              // onClick={() => setVisibleUser()}
+                onClick={() => handleUserSelector(0)}
               >
                 All
               </a>
@@ -73,7 +86,7 @@ export const App: React.FC = () => {
                   className={cn(
                     { 'is-active': visibleUser === user.id },
                   )}
-                  onClick={() => setVisibleUser(user.id)}
+                  onClick={() => handleUserSelector(user.id)}
                 // className="is-active"
                 >
                   {user.name}
