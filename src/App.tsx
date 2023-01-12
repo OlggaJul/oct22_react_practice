@@ -53,13 +53,13 @@ export const App: React.FC = () => {
     product => {
       const productName = product.name.toLowerCase();
 
-      // const selectedUser = (visibleUser !== 0)
-      //   ? usersFromServer.filter(user => user.id === visibleUser)
-      //   : usersFromServer;
+      const selectedUser = (visibleUser !== 0)
+        ? usersFromServer.filter(user => user.id === visibleUser)
+        : usersFromServer;
 
       return (
         productName.includes(searchText.toLowerCase())
-        // && selectedUser.includes(product.category?.owner)
+        && selectedUser.includes(product.category?.owner)
       );
     },
   );
