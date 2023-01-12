@@ -8,7 +8,6 @@ import categoriesFromServer from './api/categories';
 
 import { User } from './Types/User';
 import { Category } from './Types/Category';
-// import { Product } from './Types/Product';
 
 export const App: React.FC = () => {
   function getOwner(ownerId: number): User | null {
@@ -35,21 +34,25 @@ export const App: React.FC = () => {
     category: getCategory(product.categoryId),
   }));
 
-  const [visibleUser, setVisibleUser] = useState(0); //
+  const [visibleUser, setVisibleUser] = useState(0);
+  const [visibleCategory, setVisibleCategory] = useState(categoriesFromServer);
   const [searchText, setSearchText] = useState('');
 
   const handleUserSelector = (newUserId: number) => {
-    // visibleUser = (newUserId === 0)
-    //   ? usersFromServer
-    //   : usersFromServer.filter(user => user.id === newUserId);
-
     setVisibleUser(newUserId);
+  };
+
+  const handleCategorySelector = (newCategoryId: number) => {
+    const newCategory = categoriesFromServer
+      .filter(item => item.id === newCategoryId);
+
+    setVisibleCategory(newCategory);
   };
 
   const VisibleGoods = allGoods.filter(
     product => {
       const productName = product.name.toLowerCase();
-      // const selectedUser = usersFromServer.filter(user => user.id === visibleUser)
+
       const selectedUser = (visibleUser !== 0)
         ? usersFromServer.filter(user => user.id === visibleUser)
         : usersFromServer;
@@ -57,6 +60,7 @@ export const App: React.FC = () => {
       return (
         productName.includes(searchText.toLowerCase())
         && selectedUser.includes(product.category?.owner)
+        && visibleCategory.includes(product.category)
       );
     },
   );
@@ -74,7 +78,9 @@ export const App: React.FC = () => {
               <a
                 data-cy="FilterAllUsers"
                 href="#/"
-                className="is-active"
+                className={cn(
+                  { 'is-active': visibleUser === 0 },
+                )}
                 onClick={() => handleUserSelector(0)}
               >
                 All
@@ -87,7 +93,6 @@ export const App: React.FC = () => {
                     { 'is-active': visibleUser === user.id },
                   )}
                   onClick={() => handleUserSelector(user.id)}
-                // className="is-active"
                 >
                   {user.name}
                 </a>
@@ -129,36 +134,21 @@ export const App: React.FC = () => {
                 All
               </a>
 
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 1
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 2
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 3
-              </a>
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 4
-              </a>
+              {categoriesFromServer.map(category => (
+                <a
+                  data-cy="Category"
+                  href="#/"
+                  className={cn(
+                    'button',
+                    'mr-2',
+                    'my-1',
+                    { 'is-info': visibleCategory.includes(category) },
+                  )}
+                  onClick={() => handleCategorySelector(category.id)}
+                >
+                  {category.title}
+                </a>
+              ))}
             </div>
 
             <div className="panel-block">
